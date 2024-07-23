@@ -37,7 +37,7 @@
 #define TOOL_CHANGE_PROBE_RETRACT_DISTANCE 2.0f
 #endif
 
-static bool block_cycle_start, probe_fixture;
+static bool block_cycle_start, probe_fixture, probe_tool_radius_offset;
 static volatile bool execute_posted = false;
 static volatile uint32_t spin_lock = 0;
 static float tool_change_position;
@@ -93,7 +93,7 @@ static void change_completed (void)
         grbl.on_probe_fixture(&current_tool, true, false);
 
     grbl.on_probe_completed = NULL;
-    gc_state.tool_change = probe_fixture = false;
+    gc_state.tool_change = probe_fixture = probe_tool_radius_offset = false;
 }
 
 
@@ -195,6 +195,9 @@ static void execute_probe (void *data)
 
     // G59.3 contains offsets to position of TLS.
     settings_read_coord_data(CoordinateSystem_G59_3, &offset.values);
+
+    if (probe_tool_radius_offset)
+        grbl.on_probe_tool_radius_offset(next_tool, &offset);
 
     plan_data_init(&plan_data);
     plan_data.condition.rapid_motion = On;
@@ -354,6 +357,8 @@ static status_code_t tool_change (parser_state_t *parser_state)
                      (settings.tool_change.mode == ToolChange_Manual ||
                        settings.tool_change.mode == ToolChange_Manual_G59_3 ||
                         settings.tool_change.mode == ToolChange_SemiAutomatic);
+    probe_tool_radius_offset = grbl.on_probe_tool_radius_offset != NULL &&
+                                   settings.tool_change.mode == ToolChange_SemiAutomatic;
 
     // Save current position.
     system_convert_array_steps_to_mpos(previous.values, sys.position);

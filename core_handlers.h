@@ -108,6 +108,7 @@ typedef void (*on_homing_rate_set_ptr)(axes_signals_t axes, float rate, homing_m
 typedef void (*on_homing_completed_ptr)(axes_signals_t cycle, bool success);
 
 typedef bool (*on_probe_fixture_ptr)(tool_data_t *tool, bool at_g59_3, bool on);
+typedef void (*on_probe_tool_radius_offset_ptr)(tool_data_t *tool, coord_data_t *position);
 typedef bool (*on_probe_start_ptr)(axes_signals_t axes, float *target, plan_line_data_t *pl_data);
 typedef void (*on_probe_completed_ptr)(void);
 typedef void (*on_tool_selected_ptr)(tool_data_t *tool);
@@ -173,6 +174,7 @@ typedef struct {
     on_homing_rate_set_ptr on_homing_rate_set;
     on_homing_completed_ptr on_homing_completed;
     on_probe_fixture_ptr on_probe_fixture;
+    on_probe_tool_radius_offset_ptr on_probe_tool_radius_offset;
     on_probe_start_ptr on_probe_start;
     on_probe_completed_ptr on_probe_completed;
     on_set_axis_setting_unit_ptr on_set_axis_setting_unit;
